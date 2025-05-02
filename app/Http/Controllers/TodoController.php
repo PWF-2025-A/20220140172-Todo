@@ -36,4 +36,23 @@ class TodoController extends Controller
         ]);
         return redirect()->route('todo.index')->with('success', 'Todo created successfully');
     }
+        public function complete(Todo $todo)
+    {
+        if (Auth::id() == $todo->user_id) {
+            $todo->update(['is_done' => true]);
+            return redirect()->route('todo.index')->with('success', 'Todo completed successfully.');
+        } else {
+            return redirect()->route('todo.index')->with('error', 'You are not authorized to complete this todo.');
+        }
+    }
+
+    public function uncomplete(Todo $todo)
+    {
+        if (Auth::id() == $todo->user_id) {
+            $todo->update(['is_done' => false]);
+            return redirect()->route('todo.index')->with('success', 'Todo uncompleted successfully.');
+        } else {
+            return redirect()->route('todo.index')->with('error', 'You are not authorized to uncomplete this todo.');
+        }
+    }
 }
