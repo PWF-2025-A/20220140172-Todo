@@ -28,6 +28,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/user', [UserController::class, 'index'])->name('user.index');
 
+    Route::patch('/user/{user}/makeadmin', [UserController::class, 'makeadmin'])->name('user.makeadmin');
+    Route::patch('/user/{user}/removeadmin', [UserController::class, 'removeadmin'])->name('user.removeadmin');
+
+
     Route::resource('todo', TodoController::class)->except(['show']);
 });
 
