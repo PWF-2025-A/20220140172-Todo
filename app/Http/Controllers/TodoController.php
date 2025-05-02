@@ -10,12 +10,18 @@ class TodoController extends Controller
 {
     public function index()
     {
-        // $todos = todos::all();
-        $todos = Todo::where('user_id',Auth::id())->orderBy('created_at', 'desc')->get();
-        // dd($todos);
+        $todos = Todo::where('user_id', auth()->user()->id)
+                    ->orderBy('is_done', 'asc')
+                    ->orderBy('created_at', 'desc')
+                    ->get();
 
-        return view('todo.index', compact('todos'));
+        $todosCompleted = Todo::where('user_id', auth()->user()->id)
+                            ->where('is_done', true)
+                            ->count();
+
+        return view('todo.index', compact('todos', 'todosCompleted'));
     }
+
     public function create()
     {
         return view('todo.create');
@@ -81,4 +87,29 @@ public function update(Request $request, Todo $todo)
             return redirect()->route('todo.index')->with('error', 'You are not authorized to uncomplete this todo.');
         }
     }
+    public function destroy(Todo $todo)
+{
+    if (auth()->user()->id == $todo->user_id) {
+        $todo->delete();
+        return redirect()->route('todo.index')->with('success', 'Todo deleted successfully!');
+    } else {
+        return redirect()->route('todo.index')->with('danger', 'You are not authorized to delete this todo!');
+    }
+}
+
+public function destroyCompleted()
+{
+    // get all todos for current user where is_completed is true
+    $todosCompleted = Todo::where('user_id', auth()->user()->id)
+                          ->where('is_done', true)
+                          ->get();
+
+    foreach ($todosCompleted as $todo) {
+        $todo->delete();
+    }
+
+    // dd($todosCompleted);
+    return redirect()->route('todo.index')->with('success', 'All completed todos deleted successfully!');
+}
+
 }
