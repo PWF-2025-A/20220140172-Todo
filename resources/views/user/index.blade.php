@@ -7,16 +7,18 @@
     <div class="py-12">
     <div class="px-6 text-xl text-gray-900 dark:text-gray-100">
         <div class="flex items-center justify-between">
-            <div></div>
             <div>
-                @if (session('success'))
-                    <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 5000)"
-                        class="pb-3 text-sm text-green-600 dark:text-green-400">{{ session('success') }}</p>
-                @endif
-                @if (session('danger'))
-                    <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 5000)"
-                        class="pb-3 text-sm text-red-600 dark:text-red-400">{{ session('danger') }}</p>
-                @endif
+                
+                <div>
+                    @if (session('success'))
+                        <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 5000)"
+                            class="pb-3 text-sm text-green-600 dark:text-green-400">{{ session('success') }}</p>
+                    @endif
+                    @if (session('danger'))
+                        <p x-data="{ show: true }" x-show="show" x-transition x-init="setTimeout(() => show = false, 5000)"
+                            class="pb-3 text-sm text-red-600 dark:text-red-400">{{ session('danger') }}</p>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
@@ -88,7 +90,29 @@
                                         </p>
                                     </td>
                                     <td class="px-6 py-4">
+                                        <div class="flex space-x-3">
+                                            @if ($data->is_admin)
+                                                <form action="{{ route('user.removeadmin', $data) }}" method="Post">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit"
+                                                        class="text-blue-600 dark:text-blue-400 whitespace-nowrap">
+                                                        Remove Admin
+                                                    </button>
+                                                </form>
+                                            @else
+                                                <form action="{{ route('user.makeadmin', $data) }}" method="Post">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit"
+                                                        class="text-red-600 dark:text-red-400 whitespace-nowrap">
+                                                        Make Admin
+                                                    </button>
+                                                </form>
+                                            @endif
+                                        </div>
                                     </td>
+
                                 </tr>
                             @empty
                                 <tr class="odd:bg-white odd:dark:bg-gray-800 even:bg-gray-50 even:dark:bg-gray-700">
