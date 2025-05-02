@@ -16,6 +16,9 @@
     </div>
     <div class=""bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
             <div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+                <div>
+                    <x-create-button href="{{ route( 'todo.create') }} " />
+                </div>
                 <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray400">
                         <thead class="text-sm text-gray-700 uppercase bg-gray-50 dark:bg-gray-700
                         dark:text-gray-400">
@@ -60,9 +63,6 @@
         <div text-x1 text-gray-900>
             <div class="flex items-center justify-between" >
                 <div>
-                    <x-create-button href="{{ route( 'todo.create') }} " />
-                </div>
-                <div>
                     @if (session('success'))
                     <p x-data="{ show: true}" x-show="show" x-transition
                         x-init="setTimeout(() => show =false, 5000"
@@ -78,5 +78,58 @@
             </div>
         </div>
         <div class="relative overflow-x-auto">     
+        </div>
+
+        @isset($todo)
+        <div class="flex space-x-3">
+                @if ($data->is_done == false)
+                <td class="px-6 py-4">
+                    <form action="{{ route('todo.complete', $data) }}" method="POST">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit"
+                            class="text-xs text-white bg-green-700 hover:bg-green-800 focus:ring-4 
+                            focus:outline-none focus:ring-green-300 font-medium rounded-lg px-2.5 
+                            py-1.5 text-center dark:bg-green-600 dark:hover:bg-green-700 
+                            dark:focus:ring-green-800">
+                            Done
+                        </button>
+                    </form>
+                </td>
+            @else
+                <td class="px-6 py-4">
+                    <form action="{{ route('todo.uncomplete', $data) }}" method="POST">
+                        @csrf
+                        @method('PATCH')
+                        <button type="submit"
+                            class="text-xs text-white bg-red-700 hover:bg-red-800 focus:ring-4 
+                            focus:outline-none focus:ring-red-300 font-medium rounded-lg px-2.5 
+                            py-1.5 text-center dark:bg-red-600 dark:hover:bg-red-700 
+                            dark:focus:ring-red-800">
+                            Uncomplete
+                        </button>
+                    </form>
+                </td>
+            @endif
+            @if($todo->is_complete == false)
+            <form action="{{ route('todo.complete',$todo) }}" method="Post">
+                @csrf
+                @method('PATCH')
+                <button type="submit" class="text-green-600 dark:text-green-400">
+                    Complete
+
+                </button>
+            </form>
+            @else
+            <form action="{{ route('todo.uncomplete', $todo) }}" method="Post">
+            @csrf
+                @method('PATCH')
+                <button type="submit" class="text-blue-600 dark:text-blue-400">
+                    Uncomplete
+
+                </button>
+            </form>
+            @endif
+            @endisset
         </div>
 </x-app-layout>
