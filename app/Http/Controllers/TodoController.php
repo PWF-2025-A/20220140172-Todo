@@ -3,29 +3,45 @@
 namespace App\Http\Controllers;
 
 use App\Models\Todo;
+use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class TodoController extends Controller
 {
+
     public function index()
     {
-        $todos = Todo::where('user_id', auth()->user()->id)
-                    ->orderBy('is_done', 'asc')
-                    ->orderBy('created_at', 'desc')
-                    ->get();
+        // Load todos dengan relasi category sekaligus, dan filter user sesuai login
+        $todos = Todo::with('category')->where('user_id', auth()->id())->get();
 
-        $todosCompleted = Todo::where('user_id', auth()->user()->id)
-                            ->where('is_done', true)
-                            ->count();
+        // Hitung jumlah todo yang sudah selesai
+        $todosCompleted = $todos->where('is_done', true)->count();
 
         return view('todo.index', compact('todos', 'todosCompleted'));
     }
+    //public function index()
+    //{
+    //    $todos = Todo::where('user_id', auth()->user()->id)
+    //                ->orderBy('is_done', 'asc')
+    //                ->orderBy('created_at', 'desc')
+    //                ->get();
+    //
+    //    $todos = Todo::with('category')->where('user_id', auth()->id())->get();
+    //
+    //    $todosCompleted = Todo::where('user_id', auth()->user()->id)
+    //                        ->where('is_done', true)
+    //                        ->count();
+    //
+    //    return view('todo.index', compact('todos', 'todosCompleted'));
+    //}
 
-    public function create()
+        public function create()
     {
-        return view('todo.create');
+        $categories = Category::all();
+        return view('todo.create', compact('categories'));
     }
+
     public function edit(Todo $todo)
 {
     if (auth()->user()->id == $todo->user_id) {
@@ -60,10 +76,12 @@ public function update(Request $request, Todo $todo)
     {
         $request->validate([
             'title' => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
         ]);
 
         $todo = Todo::create([
             'title' => ucfirst($request->title),
+            'category_id' => $request->category_id,
             'user_id' => Auth::id(),
         ]);
         return redirect()->route('todo.index')->with('success', 'Todo created successfully');
