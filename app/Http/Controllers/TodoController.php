@@ -12,14 +12,26 @@ class TodoController extends Controller
 
     public function index()
     {
-        // Load todos dengan relasi category sekaligus, dan filter user sesuai login
-        $todos = Todo::with('category')->where('user_id', auth()->id())->get();
+        // $todos = Todo::all();
+        // $todos = Todo::where('user_id', Auth::id())->orderBy('created_at', 'desc')->get();
+        // dd($todos);
+        // $todos = Todo::where('user_id', Auth::id())
+        //     ->orderBy('is_done', 'asc')
+        //     ->orderBy('created_at', 'desc')
+        //     ->paginate(10);
+        $todos = Todo::with('category')
+            ->where('user_id', Auth::id())
+            ->orderBy('is_done', 'asc')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
 
-        // Hitung jumlah todo yang sudah selesai
-        $todosCompleted = $todos->where('is_done', true)->count();
+        $todoCompleted = Todo::where('user_id', Auth::id())
+            ->where('is_done', true)
+            ->count();
 
-        return view('todo.index', compact('todos', 'todosCompleted'));
+        return view('todo.index', compact('todos', 'todoCompleted'));
     }
+
     //public function index()
     //{
     //    $todos = Todo::where('user_id', auth()->user()->id)
@@ -57,7 +69,7 @@ class TodoController extends Controller
 public function update(Request $request, Todo $todo)
 {
     $request->validate([
-        'title' => 'required|max:255',
+        'title' => 'nullable|max:255',
     ]);
 
     // Practical
@@ -75,13 +87,13 @@ public function update(Request $request, Todo $todo)
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
-            'category_id' => 'required|exists:categories,id',
+            'title' => 'nullable|string|max:255',
+            'category_id' => 'nullable|exists:categories,id',
         ]);
 
         $todo = Todo::create([
             'title' => ucfirst($request->title),
-            'category_id' => $request->category_id,
+            'category_id' => $request->filled('category_id') ? $request->category_id : null,
             'user_id' => Auth::id(),
         ]);
         return redirect()->route('todo.index')->with('success', 'Todo created successfully');
