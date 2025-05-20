@@ -3,18 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use Auth;
 use Illuminate\Http\Request;
 
 class CategoryController extends Controller
 {
     public function index()
     {
-
-        $categories = Category::withCount('todos')->get();
-
-
+        $categories = Category::with('todos')->where('user_id', Auth::id())->get();
         return view('category.index', compact('categories'));
     }
+
+
+
+    //{
+    //    $categories = Category::withCount('todos')->get();
+    //    return view('category.index', compact('categories'));
+    //}
 
     public function create()
     {
@@ -24,14 +29,13 @@ class CategoryController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'nullable|string|max:255',
         ]);
 
         $category = Category::create([
             'user_id' => auth()->id(),
             'title' => $request->title,
         ]);
-
 
         return redirect()->route('category.index')->with('success', 'Category created successfully.');
     }
@@ -44,16 +48,15 @@ class CategoryController extends Controller
     public function update(Request $request, Category $category)
     {
         $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'nullable|string|max:255',
         ]);
 
         $category->update([
-            'title' => $request->title,
+            'title' => $request->title ?: '(Untitled Category)',
         ]);
 
         return redirect()->route('category.index')->with('success', 'Category updated successfully!');
     }
-
 
     public function destroy(Category $category)
     {
